@@ -24,4 +24,3 @@ More specifically
 
 6. Simple indexing (maybe?)
     - hash index or B+ tree index
-    
