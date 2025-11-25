@@ -9,14 +9,14 @@
 using namespace std;
 
 void menu(){
+    printf("------------------------------------------------\n");
     printf("create_table <name>       - Create a new table\n");
-    printf("drop_table <name>         - Delete a table\n");
+    // printf("drop_table <name>         - Delete a table\n");
     printf("list_tables               - List all tables\n");
     printf("insert <table> <values>   - Insert a new record\n");
-    printf("clear                     - Clear screen\n");
-    printf("quit                      - Exit program\n\n");
-
-    printf("> ");
+    printf(".exit                     - Exit program\n");
+    printf(".help                     - Show this menu\n");
+    
 }
 
 
@@ -29,8 +29,6 @@ void clrScreen(){
 }
 
 int process_input(const std::string& input){
-    printf("string entered: %s\n", input.c_str());
-    
     std::istringstream iss(input);
     std::vector<std::string> tokens;
     std::string token;
@@ -39,10 +37,49 @@ int process_input(const std::string& input){
         tokens.push_back(token);
     }
 
-    printf("Your tokens are...\n");
-    for(int i=0; i<static_cast<int>(tokens.size()); i++){
-        printf("Token %d. %s\n", i, tokens[i].c_str());
+    std::string command = tokens[0].c_str();
+    
+    if(command == "create_table"){
+        if(tokens.size() < 2){
+            printf("Usage: create_table <name>\n");
+            return -1;
+        }
+        std::string tableName = tokens[1];
+        printf("Creating table: %s\n", tableName.c_str());
+        //create table function call
+        //
     }
+    else if (command == "list_tables"){
+        if(tokens.size() > 2){
+            printf("Usage: list_tables\n");
+            return -1;
+        }
+        //list tables function call
+        //
+    }
+    else if (command == "insert"){
+        if(tokens.size() < 3){
+            printf("Usage: insert <table> <values...>\n");
+            return -1;
+        }
+        std::string tableName = tokens[1];
+        printf("Inserting into %s\n", tableName.c_str());
+        //insert function call
+        //
+    }
+    else if(command == "quit"){
+        printf("Goodbye!\n");
+        exit(0);
+    }
+    else if(command == ".help"){
+        clrScreen();
+        menu();
+    }
+    else{
+        printf("Unknown command: %s\n", command.c_str());
+    }
+
+    
 
 
 
@@ -52,16 +89,16 @@ int process_input(const std::string& input){
 int main(){
 
     printf("MiniDB\n");
-    printf("'.help' for more function info\n");
-    printf("'.exit' to quit\n\n");
     
     std::string line;
 
     menu();
 
-    std::getline(std::cin, line); //read full line
-    process_input(line);
-
+    while(line != "quit"){
+        printf("> ");
+        std::getline(std::cin, line); //read full line
+        process_input(line);
+    }
 
     return 0;
 }
