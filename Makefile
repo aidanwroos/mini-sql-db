@@ -7,6 +7,7 @@ OBJ_DIR = obj
 SRCS = $(SRC_DIR)/database.cpp \
        $(SRC_DIR)/record.cpp \
        $(SRC_DIR)/table.cpp \
+	   $(SRC_DIR)/UI.cpp \
        main.cpp
 
 OBJS = $(SRCS:%.cpp=$(OBJ_DIR)/%.o)

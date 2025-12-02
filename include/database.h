@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include "table.h"
 
 
 class Database {
@@ -11,6 +12,7 @@ class Database {
         std::unordered_map<std::string, std::unique_ptr<Table>> tables;
 
     public:
+        Database();
         //create a table
 
         //remove a table
