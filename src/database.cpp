@@ -4,6 +4,8 @@
 
 
 
+
+
 Database::Database(){
-    printf("g");
+    num_tables = 0;
 }

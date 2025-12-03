@@ -18,7 +18,6 @@ void UI::run(){
         std::getline(std::cin, line); //read full line
         process_input(line);
 
-
     }
         
 }
