@@ -26,19 +26,18 @@ void UI::run(){
 
 //Print db menu
 void UI::print_menu(){
-    printf("----------------------------SQL Operations-------------------------------\n");
-    printf("CREATE TABLE <table_name>                        - Create a new table\n");
-    printf("DROP TABLE <table_name>                          - Remove a table from db\n");
-    printf("SELECT * FROM table_name                         - List all rows in table\n");
-    printf("INSERT INTO <table_name> VALUES val1, val2,...   - Add a new record\n");
-    printf("--------------------------------------------------------------------------\n\n");
+    printf("----------------------------SQL Operations---------------------------------\n");
+    printf("CREATE TABLE <table_name>                          - Create a new table\n");
+    printf("DROP TABLE <table_name>                            - Remove a table from db\n");
+    printf("SELECT * FROM table_name                           - List all rows in table\n");
+    printf("INSERT INTO <table_name> VALUES val1, val2,...     - Add a new record\n");
+    printf("---------------------------------------------------------------------------\n\n");
 
-    printf("----------------------------Basic Operations-----------------------------\n");
-    printf("list_tables                                      - List all tables in db");
-
-    printf(".exit                                            - Exit program\n");
-    printf(".help                                            - Show menu\n");
-    printf("--------------------------------------------------------------------------\n\n");
+    printf("----------------------------Basic Operations-------------------------------\n");
+    printf("list_tables                                        - List all tables in db\n");
+    printf(".exit                                              - Exit program\n");
+    printf(".help                                              - Show menu\n");
+    printf("---------------------------------------------------------------------------\n\n");
 }
 
 //Clear the screen
@@ -112,7 +111,7 @@ int UI::process_input(const std::string& input){
         std::string tableName = tokens[1]; // <table_name>
         std::vector<std::string> args;     // row values (val1, val2,...)
 
-        for(int i=4; i < tokens.size(); i++){
+        for(size_t i=4; i < tokens.size(); i++){
             args.push_back(tokens[i]);
         }
 
