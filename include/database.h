@@ -1,9 +1,12 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include <iostream>
+#include <fstream>
 #include <unordered_map>
 #include <memory>
 #include <vector>
+#include <filesystem>
 #include "table.h"
 
 //     printf("------------------------------------------------\n");
@@ -20,15 +23,21 @@ class Database {
     private:
         std::string db_path; // e.g., "./database/"
         
+        std::unordered_map<std::string, std::string> tables; // <table_name, path>
 
     public:
-        Database(const std::string& path = "./database/");
+        Database(); //default constructor
+        
+        ~Database(); //Deconstructor
 
         //create a table
         void create_table(const std::string& name);
 
         //insert <table> <values>
         void insert(const std::string& table_name, const std::vector<std::string>& values);
+
+        //remove <table>
+        void remove_table(const std::string& table_name);
 
         //list table names
         void list_tables() const;

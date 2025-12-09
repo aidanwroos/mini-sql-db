@@ -3,6 +3,12 @@
 
 
 class Table {
+    private:
+        
+
+    public:
+        Table(); //default
+
 
 };
 

@@ -2,6 +2,8 @@
 #define UI_H
 
 #include <string>
+#include <thread>
+#include <chrono>
 #include "database.h"
 
 class UI {
@@ -9,6 +11,7 @@ class UI {
         Database& database;
 
     public: 
+        
         UI(Database &database);
 
         void run();
