@@ -14,27 +14,30 @@ void UI::run(){
     print_menu();
 
     while(line != "quit"){
-        
         printf("> ");
         std::getline(std::cin, line); //read full line
         process_input(line);
-
-    }
-        
+    } 
 }
 
 
 //Print db menu
 void UI::print_menu(){
-    printf("----------------------------SQL Operations---------------------------------\n");
+    printf("--------------------------- DB OPERATIONS ---------------------------------\n");
     printf("CREATE TABLE <table_name>                          - Create a new table\n");
-    printf("DROP TABLE <table_name>                            - Remove a table from db\n");
-    printf("SELECT * FROM table_name                           - List all rows in table\n");
-    printf("INSERT INTO <table_name> VALUES val1, val2,...     - Add a new record\n");
+    printf("REMOVE TABLE <table_name>                            - Remove a table from db\n");
+    printf("list_tables                                        - List all tables in db\n");
     printf("---------------------------------------------------------------------------\n\n");
 
-    printf("----------------------------Basic Operations-------------------------------\n");
-    printf("list_tables                                        - List all tables in db\n");
+    printf("--------------------------- SQL-LIKE OPERATIONS ---------------------------\n");
+    printf("SELECT * FROM <table_name>                         - List all rows in table\n");
+    printf("SELECT <record_id> FROM <table_name>               - Find specific record\n");             
+    printf("INSERT INTO <table_name> VALUES val1, val2,...     - Add a new record\n");        
+    printf("DROP <record_id> FROM <table_name>                 - Delete record from table\n");
+    printf("UPDATE <table_name> <record_id> <column> <value>   - Update record values");       
+    printf("---------------------------------------------------------------------------\n\n");
+
+    printf("--------------------------- OTHER -----------------------------------------\n");
     printf(".exit                                              - Exit program\n");
     printf(".help                                              - Show menu\n");
     printf("---------------------------------------------------------------------------\n\n");
@@ -49,78 +52,108 @@ void UI::clear_screen(){
     #endif
 }
 
-//Process the input
+//Process the user input
 int UI::process_input(const std::string& input){
-    if(input.find_first_not_of(" \t\r\n") == std::string::npos){
-        return -1;
-    }
+    //Skip empty/white-space input
+    if(input.find_first_not_of(" \t\r\n") == std::string::npos) return -1;
+    
+    //Tokenize input
     std::istringstream iss(input);
     std::vector<std::string> tokens;
     std::string token;
-
-    while (iss >> token){
-        tokens.push_back(token);
-    }
-
-    if(tokens.empty()){
-        return -1;
-    }
+    while (iss >> token) tokens.push_back(token);
+    if(tokens.empty()) return -1; //no tokens, return
     
-    //what the user entered
-    std::string full_entry;
-    for(size_t i=0; i < tokens.size(); i++){
-        full_entry.append(tokens[i]);
-    }
-    //command (partial for some)
-    std::string command = tokens[0].c_str();
+     
+    std::string command = tokens[0].c_str(); //command
 
-    
-    if(tokens[0] == "CREATE" && tokens[1] == "TABLE"){
+    //CREATE TABLE
+    if(command == "CREATE" && tokens[1] == "TABLE"){
         if(tokens.size() != 3){
             printf("Usage: CREATE TABLE <table_name>\n");
             return -1;
         }
         std::string tableName = tokens[2];
         printf("Creating table: %s\n", tableName.c_str());
-        //create table function call
         database.create_table(tableName);
     }
-    else if (tokens[0] == "DROP" && tokens[1] == "TABLE"){
+
+    //REMOVE (DROP) TABLE
+    else if (tokens[0] == "REMOVE" && tokens[1] == "TABLE"){
         if(tokens.size() != 3){
             printf("Usage: DROP TABLE <table_name>\n");
             return -1;
         }
-        //remove table function call
-        std::string table_name = tokens[2];
-        database.remove_table(table_name);
+        printf("Dropping table: %s\n", tokens[2].c_str());
+        database.remove_table(tokens[2]);
     }
+
+    //LIST TABLES
     else if (command == "list_tables"){
         if(tokens.size() != 1){
             printf("Usage: list_tables\n");
             return -1;
         }
-        //list tables function call
         database.list_tables();
     }
-    // INSERT INTO <table_name> VALUES val1, val2,...
-    else if (tokens[0] == "INSERT" && tokens[1] == "INTO" && tokens[3] == "VALUES"){
+
+    //SELECT (ALL) ROWS
+    else if(command == "SELECT" && tokens[1] == "*" && tokens[2] == "FROM"){
         if(tokens.size() < 4){
-            printf("INSERT INTO <table_name> VALUES val1, val2,...\n");
+            printf("Usage: SELECT * FROM <table_name>\n");
             return -1;
         }
-        std::string tableName = tokens[1]; // <table_name>
-        std::vector<std::string> args;     // row values (val1, val2,...)
+        database.display_all_records(database.select_rows(tokens[3]));
+    }
 
-        for(size_t i=4; i < tokens.size(); i++){
-            args.push_back(tokens[i]);
+    //FIND A RECORD
+    else if(command == "SELECT" && tokens[2] == "FROM"){
+        if(tokens.size() != 4){
+            printf("Usage: SELECT <record_id> FROM <table_name>\n");
+            return -1;
         }
+        database.display_record(database.find_record(std::stoi(tokens[1]), tokens[3]));
+    }
 
+    //INSERT RECORD
+    else if(tokens[0] == "INSERT" && tokens[1] == "INTO" && tokens[3] == "VALUES"){
+        if(tokens.size() < 5){
+            printf("Usage: INSERT INTO <table_name> VALUES val1, val2,...\n");
+            return -1;
+        }
+        std::string tableName = tokens[2]; //table_name
+        std::vector<std::string> rowValues(tokens.begin() + 4, tokens.end()); //row values
+        
+        if(!database.insert_record(tableName, rowValues)){
+            printf("Error: 'Failed to INSERT record\n");
+            return -1;
+        }
         printf("Inserting into %s\n", tableName.c_str());
-        //insert function call
-        //
-        //database.insert(std::string table_name, std::vector<std::string> row_values) ?
+    }
+
+    //DELETE RECORD
+    else if(command == "DROP" && tokens[2] == "FROM"){
+        if(tokens.size() != 4){
+            printf("Usage: DROP <record_id> FROM <table_name>\n");
+            return -1;
+        }
+        if(!database.drop_record(tokens[3], std::stoi(tokens[1]))){
+            printf("Error: 'Failed to DROP record (ID: %d)'\n", std::stoi(tokens[1]));
+            return -1;
+        }
     }
     
+    //UPDATE RECORD
+    else if(command == "UPDATE"){
+        if(tokens.size() < 6){
+            printf("Usage: UPDATE <table_name> <record_id> <column> <value>\n");
+            return -1;
+        }
+        if(!database.update_record(tokens[1], std::stoi(tokens[2]), tokens[3], tokens[4])){
+            printf("Error: 'Failed to UPDATE record (ID: %d)'\n", std::stoi(tokens[2]));
+            return -1;
+        }
+    }
 
     else if(command == "quit" || command == "q"){
         printf("Goodbye!\n");
@@ -133,7 +166,7 @@ int UI::process_input(const std::string& input){
     }
     
     else{
-        printf("Unknown command: %s\n", full_entry.c_str());
+        printf("Unknown command: %s\n", input.c_str());
     }
 
 

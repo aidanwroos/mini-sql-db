@@ -4,13 +4,15 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <unordered_map>
 
 using namespace std;
 using FieldValue = std::variant<int, string, float, bool>;
 
 class Record {
     private:
-        std::vector<FieldValue> values;
+        // std::vector<FieldValue> values; ?
+        std::unordered_map<std::string, FieldValue> data; // <column_name, data>
 
     public:
         Record() = default;

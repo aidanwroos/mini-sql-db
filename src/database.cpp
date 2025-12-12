@@ -1,5 +1,5 @@
-#include "table.h"
 #include "database.h"
+#include "record.h"
 #include <filesystem>
 #include <iostream>
 
@@ -18,8 +18,9 @@ Database::~Database(){} //deconstructor (not needed atm)
 
 void Database::create_table(const std::string& name){
     //locate table (if exists already)
-    if(tables.find(name) != tables.end()){
-        std::cout << "Table already exists.\n";
+    fs::path tblPath = fs::path(db_path) / (name + ".tbl");
+    if(fs::exists(tblPath)){
+        printf("Table already exists.\n");
         return;
     }
     
@@ -34,7 +35,7 @@ void Database::create_table(const std::string& name){
     //update unorderedmap list of tables
     tables[name] = table_path;
 
-    printf("Table '%s' created in path:%s\n", name.c_str(), db_path.c_str());
+    printf("Table '%s' created with path: %s\n", name.c_str(), db_path.c_str());
 }
 
 void Database::remove_table(const std::string& table_name){
@@ -44,13 +45,11 @@ void Database::remove_table(const std::string& table_name){
         printf("Table '%s' removed from location %s\n", table_name.c_str(), table_path.c_str());
         return;
     }
-    
     printf("Table '%s' not found.\n", table_name.c_str());
 }
 
 
 void Database::list_tables() const {
-
     bool has_tables = false;
     for(const auto& entry : fs::directory_iterator(db_path)){
         if(entry.is_regular_file()){
@@ -76,3 +75,30 @@ void Database::list_tables() const {
         }
     }
 }
+
+//display all records in a table, given the table's name
+void Database::display_all_records(std::vector<Record> records){
+    for(const auto& rec : records) {
+        const auto& values = rec.getValues();
+
+        printf("VALUES= [ ");
+
+        for(const auto& v : values){
+            std::visit([](auto&& val){
+                std::cout << val << " | ";
+            }, v);
+        }
+
+        printf("\n");
+    }
+}
+
+// Hold onto for a bit...
+// void Database::display_all_records(std::vector<Record> records){
+//     for(size_t i=0; i < records.size(); i++){
+//         std::vector<FieldValue> values = records[i].getValues(); //record's values
+//         for(size_t k=0; k<values.size(); k++){
+//             values[]
+//         }
+//     }
+// }

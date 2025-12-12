@@ -6,17 +6,12 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
+#include <variant>
 #include <filesystem>
-#include "table.h"
+#include "StorageManager.h"
+#include "record.h"
 
-//     printf("------------------------------------------------\n");
-//     printf("create_table <name>       - Create a new table\n");
-//     printf("list_tables               - List all tables\n");
-//     printf("insert <table> <values>   - Insert a new record\n");
-//     printf(".exit                     - Exit program\n");
-//     printf(".help                     - Show this menu\n");
-//     printf("------------------------------------------------\n\n");
-
+using AnyType = std::variant<int, double, std::string>;
 
 
 class Database {
@@ -29,21 +24,23 @@ class Database {
         Database(); //default constructor
         
         ~Database(); //Deconstructor
-
-        //create a table
+        
+        //DB OPERATIONS
         void create_table(const std::string& name);
-
-        //insert <table> <values>
-        void insert(const std::string& table_name, const std::vector<std::string>& values);
-
-        //remove <table>
-        void remove_table(const std::string& table_name);
-
-        //list table names
+        void remove_table(const std::string& table_name); //(drop)
         void list_tables() const;
 
+        //SQL-LIKE OPERATIONS
+        std::vector<Record> select_rows(std::string table_name);   //list all rows in table
+        Record find_record(int record_id, std::string table_name); //find specific record
+        bool insert_record(std::string table_name, std::vector<std::string>& values);
+        bool drop_record(std::string table_name, int record_id);
+        bool update_record(std::string table_name, int record_id, std::string column, std::string value);
         
-
+        //DISPLAY DATA ---------------------------------------
+        void display_all_records(std::vector<Record> records);
+        void display_record(Record record);
+        //----------------------------------------------------
 };
 
 
