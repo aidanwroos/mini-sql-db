@@ -24,8 +24,8 @@ void UI::run(){
 //Print db menu
 void UI::print_menu(){
     printf("--------------------------- DB OPERATIONS ---------------------------------\n");
-    printf("CREATE TABLE <table_name>                          - Create a new table\n");
-    printf("REMOVE TABLE <table_name>                            - Remove a table from db\n");
+    printf("CREATE TABLE <table_name> <col1> <col2>            - Create a new table\n");
+    printf("REMOVE TABLE <table_name>                          - Remove a table from db\n");
     printf("list_tables                                        - List all tables in db\n");
     printf("---------------------------------------------------------------------------\n\n");
 
@@ -34,7 +34,7 @@ void UI::print_menu(){
     printf("SELECT <record_id> FROM <table_name>               - Find specific record\n");             
     printf("INSERT INTO <table_name> VALUES val1, val2,...     - Add a new record\n");        
     printf("DROP <record_id> FROM <table_name>                 - Delete record from table\n");
-    printf("UPDATE <table_name> <record_id> <column> <value>   - Update record values");       
+    printf("UPDATE <table_name> <record_id> <column> <value>   - Update record values\n");       
     printf("---------------------------------------------------------------------------\n\n");
 
     printf("--------------------------- OTHER -----------------------------------------\n");
@@ -64,18 +64,18 @@ int UI::process_input(const std::string& input){
     while (iss >> token) tokens.push_back(token);
     if(tokens.empty()) return -1; //no tokens, return
     
-     
     std::string command = tokens[0].c_str(); //command
 
     //CREATE TABLE
     if(command == "CREATE" && tokens[1] == "TABLE"){
-        if(tokens.size() != 3){
-            printf("Usage: CREATE TABLE <table_name>\n");
+        if(tokens.size() < 5){
+            printf("Usage: CREATE TABLE <table_name> <col1> <col2> ...\n");
             return -1;
         }
         std::string tableName = tokens[2];
+        std::vector<string> column_names(tokens.begin() + 3, tokens.end()); //column names
         printf("Creating table: %s\n", tableName.c_str());
-        database.create_table(tableName);
+        database.create_table(tableName, column_names);
     }
 
     //REMOVE (DROP) TABLE
@@ -155,20 +155,23 @@ int UI::process_input(const std::string& input){
         }
     }
 
+    //QUIT PROGRAM
     else if(command == "quit" || command == "q"){
         printf("Goodbye!\n");
         clear_screen();
         exit(0);
     }
+
+    //HELP
     else if(command == ".help" || command == "clear" || command == "cls"){
         clear_screen();
         print_menu();
     }
     
+    //CATCHALL
     else{
         printf("Unknown command: %s\n", input.c_str());
     }
-
 
     return 0;
 }

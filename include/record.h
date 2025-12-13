@@ -11,11 +11,11 @@ using FieldValue = std::variant<int, string, float, bool>;
 
 class Record {
     private:
-        // std::vector<FieldValue> values; ?
-        std::unordered_map<std::string, FieldValue> data; // <column_name, data>
+        std::vector<FieldValue> values;
 
     public:
-        Record() = default;
+        Record();
+
         Record(const std::vector<FieldValue>& values);
 
         //Accessors (get value, add value)

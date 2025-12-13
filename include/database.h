@@ -10,6 +10,7 @@
 #include <filesystem>
 #include "StorageManager.h"
 #include "record.h"
+#include "table.h"
 
 using AnyType = std::variant<int, double, std::string>;
 
@@ -18,15 +19,19 @@ class Database {
     private:
         std::string db_path; // e.g., "./database/"
         
-        std::unordered_map<std::string, std::string> tables; // <table_name, path>
+        std::unordered_map<std::string, Table> tables; // <table_name, path>
 
     public:
         Database(); //default constructor
         
         ~Database(); //Deconstructor
+
+        //LOAD EXISTING TABLES
+        void load_tables_from_disk();
         
+
         //DB OPERATIONS
-        void create_table(const std::string& name);
+        void create_table(const std::string& name, std::vector<string> column_names);
         void remove_table(const std::string& table_name); //(drop)
         void list_tables() const;
 

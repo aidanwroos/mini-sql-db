@@ -19,9 +19,8 @@ class StorageManager {
 
     ~StorageManager();
 
-    bool read_in_page(){
-
-    }
+    bool read_in_page();
+    
 
 };
 

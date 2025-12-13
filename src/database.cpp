@@ -1,5 +1,6 @@
 #include "database.h"
 #include "record.h"
+#include "table.h"
 #include <filesystem>
 #include <iostream>
 
@@ -11,12 +12,15 @@ Database::Database() : db_path("./database/"){
         fs::create_directory(db_path);
     }
 
+    //Check directory for tables, so map of tables can be updated
+    //(loading existing tables)
+    load_tables_from_disk();
+
 }
 
-Database::~Database(){} //deconstructor (not needed atm)
+Database::~Database(){} //Deconstructor
 
-
-void Database::create_table(const std::string& name){
+void Database::create_table(const std::string& name, std::vector<string> column_names){
     //locate table (if exists already)
     fs::path tblPath = fs::path(db_path) / (name + ".tbl");
     if(fs::exists(tblPath)){
@@ -32,9 +36,13 @@ void Database::create_table(const std::string& name){
         return;
     }
 
-    //update unorderedmap list of tables
-    tables[name] = table_path;
+    //1. update in memory table information
+    Table t(name, column_names);
+    tables[name] = t; //update unorderedmap list of tables
 
+    //2. write schema (columns) to the table file header
+    t.write_header(file);
+    
     printf("Table '%s' created with path: %s\n", name.c_str(), db_path.c_str());
 }
 
@@ -47,7 +55,6 @@ void Database::remove_table(const std::string& table_name){
     }
     printf("Table '%s' not found.\n", table_name.c_str());
 }
-
 
 void Database::list_tables() const {
     bool has_tables = false;
@@ -68,15 +75,55 @@ void Database::list_tables() const {
     for(const auto& entry : fs::directory_iterator(db_path)){
         if(entry.is_regular_file()){
             auto path = entry.path();
-            auto name = path.stem().string();
+            std::string name = path.stem().string();
             auto size = fs::file_size(path);
+            
 
-            printf("%d. %s, SIZE: %ld bytes\n", i++, name.c_str(), size);
+            //the specific table we're looking for (using map lookup)
+            Table t = tables.at(name);
+
+            auto it = tables.find(name);
+            if(it != tables.end()){
+                t = it->second;
+            }else{
+                printf("Table does not exist\n");
+            }
+            
+            printf("%d. %s, SIZE: %ld bytes, COLS: ", i++, name.c_str(), size);
+
+            for(size_t c=0; c < t.schema_size(); c++){
+                Column col;
+                col = t.return_column(c);
+                printf("%s ", (col.name).c_str());
+            }
+
+            printf("\n");
         }
     }
 }
 
-//display all records in a table, given the table's name
+std::vector<Record> Database::select_rows(std::string table_name){
+    std::vector<Record> temp;
+    return temp;
+}
+
+Record Database::find_record(int record_id, std::string table_name){
+    Record temp;
+    return temp;
+}
+
+bool Database::insert_record(std::string table_name, std::vector<std::string>& values){
+    return false;
+}
+
+bool Database::drop_record(std::string table_name, int record_id){
+    return false;
+}
+
+bool Database::update_record(std::string table_name, int record_id, std::string column, std::string value){
+    return false;
+}
+
 void Database::display_all_records(std::vector<Record> records){
     for(const auto& rec : records) {
         const auto& values = rec.getValues();
@@ -93,12 +140,35 @@ void Database::display_all_records(std::vector<Record> records){
     }
 }
 
-// Hold onto for a bit...
-// void Database::display_all_records(std::vector<Record> records){
-//     for(size_t i=0; i < records.size(); i++){
-//         std::vector<FieldValue> values = records[i].getValues(); //record's values
-//         for(size_t k=0; k<values.size(); k++){
-//             values[]
-//         }
-//     }
-// }
+void Database::display_record(Record record){
+
+}
+
+
+
+void Database::load_tables_from_disk(){
+    //Iterate over every file inside db_path
+    for(const auto& entry : fs::directory_iterator(db_path)){
+        
+        //skip anything not a .tbl file
+        if(entry.path().extension() != ".tbl") continue;
+
+        //extract the filename without extension
+        std::string name = entry.path().stem().string();
+
+        //check if this table is already loaded in memory (our map)
+        if(tables.find(name) == tables.end()){
+            
+            //its not loaded in memory yet
+            //create new table object
+            //load object with the table information
+            Table t;
+            t.table_info(db_path + name, name); //update table info <tbl_path, name>
+            t.load_from_disk(entry); //(to update schema)
+            
+            //add table to the map
+            tables.emplace(name, t);
+        }
+    }
+
+}
