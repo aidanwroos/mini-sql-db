@@ -38,8 +38,9 @@ void UI::print_menu(){
     printf("---------------------------------------------------------------------------\n\n");
 
     printf("--------------------------- OTHER -----------------------------------------\n");
-    printf(".exit                                              - Exit program\n");
-    printf(".help                                              - Show menu\n");
+    printf("cls (or clear)                                     - Clear screen\n");
+    printf("quit                                               - Exit program\n");
+    printf("help                                               - Show menu\n");
     printf("---------------------------------------------------------------------------\n\n");
 }
 
@@ -124,7 +125,9 @@ int UI::process_input(const std::string& input){
         std::string tableName = tokens[2]; //table_name
         std::vector<std::string> rowValues(tokens.begin() + 4, tokens.end()); //row values
         
-        if(!database.insert_record(tableName, rowValues)){
+        Table t = database.return_table(tableName);
+
+        if(!database.insert_record(t, rowValues)){ //if insert_record returns false
             printf("Error: 'Failed to INSERT record\n");
             return -1;
         }

@@ -1,6 +1,7 @@
 #include "database.h"
 #include "record.h"
 #include "table.h"
+
 #include <filesystem>
 #include <iostream>
 
@@ -40,7 +41,7 @@ void Database::create_table(const std::string& name, std::vector<string> column_
     Table t(name, column_names);
     tables[name] = t; //update unorderedmap list of tables
 
-    //2. write schema (columns) to the table file header
+    //2. write table header and schema (column names) to the table file
     t.write_header(file);
     
     printf("Table '%s' created with path: %s\n", name.c_str(), db_path.c_str());
@@ -49,7 +50,8 @@ void Database::create_table(const std::string& name, std::vector<string> column_
 void Database::remove_table(const std::string& table_name){
     fs::path table_path = fs::path(db_path) / (table_name + ".tbl");
     if(fs::exists(table_path)){
-        fs::remove_all(table_path);
+        fs::remove_all(table_path); //erase from directory
+        tables.erase(table_name); //erase from map
         printf("Table '%s' removed from location %s\n", table_name.c_str(), table_path.c_str());
         return;
     }
@@ -102,6 +104,21 @@ void Database::list_tables() const {
     }
 }
 
+//search for table, return true false
+bool Database::locate_table(std::string table_name){
+    
+    return tables.find(table_name) != tables.end();
+}
+
+
+//return table object instance
+Table Database::return_table(std::string table_name){
+    Table t = tables.at(table_name);
+    return t;
+}
+
+
+
 std::vector<Record> Database::select_rows(std::string table_name){
     std::vector<Record> temp;
     return temp;
@@ -112,8 +129,49 @@ Record Database::find_record(int record_id, std::string table_name){
     return temp;
 }
 
-bool Database::insert_record(std::string table_name, std::vector<std::string>& values){
-    return false;
+bool Database::insert_record(Table table, std::vector<std::string>& values){
+
+    //check if table exists in directory
+    std::string table_name = table.return_table_name();
+
+    if(!locate_table(table_name)){
+        printf("insert_record: (error) Table, '%s' not found\n", table_name.c_str());
+        return false;
+    };
+    
+    //success (table located)
+    printf("Table '%s' found! creating new StorageManager instance\n", table_name.c_str());
+
+    //grab the table's path, and init new StorageManager instance with it
+    std::string table_path = return_path(table_name);
+    StorageManager m(table_path); 
+    
+    printf("\nTableheader info:\n");
+    printf("Page size: %d\n", table.return_tableheader().page_size);
+    printf("Num columns: %d\n", table.return_tableheader().num_columns);
+    printf("Num records: %d\n", table.return_tableheader().num_records);
+    printf("Free space start: %d\n", table.return_tableheader().free_space_start);
+    printf("Slot dir start: %d\n\n", table.return_tableheader().slot_dir_start);
+
+    
+    printf("Table: %s\n", table_name.c_str());
+    printf("Path: %s\n", m.file_path.c_str());
+    printf("Columns: ");
+    for(const auto& x : table.return_schema()){
+        printf("%s ", x.name.c_str());
+    }
+    printf("\n");
+
+    //instance 'm'
+
+    //open (read) file
+    
+    //look for non-full page to insert into
+
+    
+    // return false; //should return false
+    return true; //(temporary for testing purposes)
+
 }
 
 bool Database::drop_record(std::string table_name, int record_id){
@@ -159,16 +217,24 @@ void Database::load_tables_from_disk(){
         //check if this table is already loaded in memory (our map)
         if(tables.find(name) == tables.end()){
             
-            //its not loaded in memory yet
+            //it's not loaded in memory yet
             //create new table object
             //load object with the table information
             Table t;
-            t.table_info(db_path + name, name); //update table info <tbl_path, name>
-            t.load_from_disk(entry); //(to update schema)
+            std::string path = db_path + name + ".tbl";
+            t.table_info(path, name); //update table info <tbl_path, name>
+            t.load_from_disk(entry); //(to load header struct, and update schema)
             
             //add table to the map
             tables.emplace(name, t);
         }
     }
 
+}
+
+
+std::string Database::return_path(std::string table_name){
+    Table t = tables.at(table_name);
+    std::string table_path = t.return_path(); //
+    return table_path;
 }

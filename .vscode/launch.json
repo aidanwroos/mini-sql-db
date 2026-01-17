@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/aidan/Desktop/codingprojects",
-      "program": "c:/Users/aidan/Desktop/codingprojects/build/Debug/outDebug",
+      "cwd": "c:/Users/aidan/Desktop/codingprojects/include",
+      "program": "c:/Users/aidan/Desktop/codingprojects/include/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

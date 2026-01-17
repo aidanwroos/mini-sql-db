@@ -8,19 +8,21 @@
 namespace fs = std::filesystem;
 
 class StorageManager {
-    private:
-        std::string file_path;             // filename of table the storagemanager is currently working on
-        fstream data_file;                 // Handles IO binary file operations
-        std::vector<Page> page_buffer;     // (max of 3 pages loaded into memory at a time)
-
     public:
+
+    std::string file_path;             // file path of table the storagemanager is currently working on
+    fstream data_file;                 // Handles IO binary file operations
+    std::vector<Page> page_buffer;     // (max of 3 pages loaded into memory at a time)
         
+    
+    StorageManager();
+
     StorageManager(std::string table_path);
 
     ~StorageManager();
 
     bool read_in_page();
-    
+
 
 };
 

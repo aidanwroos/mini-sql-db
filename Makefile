@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -g -O0 -Iinclude
 
 SRC_DIR = src
 OBJ_DIR = obj
@@ -7,6 +7,7 @@ OBJ_DIR = obj
 SRCS = $(SRC_DIR)/database.cpp \
        $(SRC_DIR)/record.cpp \
        $(SRC_DIR)/table.cpp \
+	   $(SRC_DIR)/StorageManager.cpp \
 	   $(SRC_DIR)/UI.cpp \
        main.cpp
 
