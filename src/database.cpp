@@ -146,22 +146,8 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
     std::string table_path = return_path(table_name);
     StorageManager m(table_path); 
     
-    printf("\nTableheader info:\n");
-    printf("Page size: %d\n", table.return_tableheader().page_size);
-    printf("Num columns: %d\n", table.return_tableheader().num_columns);
-    printf("Num records: %d\n", table.return_tableheader().num_records);
-    printf("Free space start: %d\n", table.return_tableheader().free_space_start);
-    printf("Slot dir start: %d\n\n", table.return_tableheader().slot_dir_start);
-
+    table.table_info_display(); //display table information
     
-    printf("Table: %s\n", table_name.c_str());
-    printf("Path: %s\n", m.file_path.c_str());
-    printf("Columns: ");
-    for(const auto& x : table.return_schema()){
-        printf("%s ", x.name.c_str());
-    }
-    printf("\n");
-
     //instance 'm'
 
     //open (read) file
