@@ -133,26 +133,56 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
 
     //check if table exists in directory
     std::string table_name = table.return_table_name();
-
     if(!locate_table(table_name)){
         printf("insert_record: (error) Table, '%s' not found\n", table_name.c_str());
         return false;
     };
-    
-    //success (table located)
-    printf("Table '%s' found! creating new StorageManager instance\n", table_name.c_str());
 
-    //grab the table's path, and init new StorageManager instance with it
-    std::string table_path = return_path(table_name);
-    StorageManager m(table_path); 
+    //check incorrect number of column values entered
+    if(sizeof(values) != table.return_tableheader().num_columns){
+        printf("insert_record: error, values entered do not match number of required columns\n");
+        return false;
+    }
+
+    //init new StorageManager instance
+    StorageManager m(table.return_path()); 
+    fstream& fileptr = m.file(); //return filestream
+
+    std::vector<char> buffer; //record write buffer
+    size_t free_space_offset = table.return_tableheader().free_space_start;
     
+    size_t offset = 0;
+    //iterate thru record values, memcpy to buffer (size offset, data)
+    for(auto const& x : values){ //serialize all record column values, add to buffer
+        //memcpy the value's size
+        uint32_t val_size = x.size();
+        memcpy(buffer.data() + offset, &val_size, sizeof(val_size));
+        offset += sizeof(val_size);
+        
+        //memcpy the value's characters
+        memcpy(buffer.data() + offset, x.data(), val_size);
+        offset += val_size;
+    }
+
+    //move "write" ptr to free_space_start
+    fileptr.seekp(free_space_offset, std::ios::beg);
+    
+    //write buffer of record data to file
+    fileptr.write(buffer.data(), buffer.size());
+
+    //update table's tableheader with new free_space_start and slot_dir_start
+
+
+
+
+
     table.table_info_display(); //display table information
     
-    //instance 'm'
-
-    //open (read) file
     
-    //look for non-full page to insert into
+    
+    
+
+    
 
     
     // return false; //should return false

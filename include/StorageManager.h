@@ -23,6 +23,8 @@ class StorageManager {
 
     bool read_in_page();
 
+    fstream& file(); //return data_file by REFERENCE (not VALUE headass)
+
 
 };
 

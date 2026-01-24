@@ -12,20 +12,17 @@ StorageManager::StorageManager(){
 
 //Fires up when StorageManager instance created
 //Opens filestream for given table_path
-StorageManager::StorageManager(std::string table_path){
-    file_path = table_path;
-
-    data_file.open(file_path, ios::binary | ios::out | ios::in | ios::app);
-    if(!data_file.is_open()){
+StorageManager::StorageManager(std::string table_path) 
+    : file_path(table_path),
+    data_file(table_path, ios::binary | ios::out | ios::in | ios::app)
+{
+    if(!data_file){
         printf("StorageManager: 'Failed to open data file: %s\n", file_path.c_str());
         return;
     }
 
     //success
     printf("StorageManager: 'Success, opened data file for table path: %s\n", table_path.c_str());
-
-    //initialize data_file (open)
-    data_file.open(file_path, std::ios::in | std::ios::out);
 }
 
 //Closes filestream, closes instance
