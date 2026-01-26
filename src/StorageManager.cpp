@@ -12,9 +12,9 @@ StorageManager::StorageManager(){
 
 //Fires up when StorageManager instance created
 //Opens filestream for given table_path
-StorageManager::StorageManager(std::string table_path) 
-    : file_path(table_path),
-    data_file(table_path, ios::binary | ios::out | ios::in | ios::app)
+StorageManager::StorageManager(Table table) 
+    : file_path(table.return_path()),
+    data_file(table.return_path(), ios::binary | ios::out | ios::in | ios::app)
 {
     if(!data_file){
         printf("StorageManager: 'Failed to open data file: %s\n", file_path.c_str());
@@ -22,7 +22,7 @@ StorageManager::StorageManager(std::string table_path)
     }
 
     //success
-    printf("StorageManager: 'Success, opened data file for table path: %s\n", table_path.c_str());
+    printf("StorageManager: 'Success, opened data file for table path: %s\n", table.return_path().c_str());
 }
 
 //Closes filestream, closes instance
@@ -31,4 +31,29 @@ StorageManager::~StorageManager(){
         data_file.close();
     }
 }
+
+fstream& StorageManager::file(){
+    return data_file;
+}
+
+
+Page StorageManager::read_page(){
+    std::streamsize size = data_file.tellg();
+    int num_pages = size / 4096;
+
+    Page page;
+
+    if(num_pages == 0){
+        //no pages exist in table yet, create new one and return it
+        page = Page::create_empty(0);
+
+    }else{
+        //pages exist, read last page in table and return it
+    }
+    
+
+
+}
+
+
 

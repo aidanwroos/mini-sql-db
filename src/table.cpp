@@ -23,11 +23,10 @@ Table::Table(std::string table_name, std::vector<std::string> cols){
 }
 
 void Table::init_table_header(int numcols){
+    tableheader.page_size = 4096;
     tableheader.num_columns = numcols;
     tableheader.num_records = 0;
-    tableheader.page_size = 4096;
-    tableheader.free_space_start = 4096;
-    tableheader.slot_dir_start = 4096;
+    tableheader.num_pages = 0;
 }
 
 void Table::table_info(std::string p, std::string n){ //path, name
@@ -44,7 +43,7 @@ size_t Table::schema_size(){
     return schema.size();
 }
 
-
+//write the tableheader
 void Table::write_header(std::ofstream& file){
     std::vector<char> buffer(4096, 0); //header buffer, padding with 0's
     size_t offset = 0;
@@ -64,15 +63,10 @@ void Table::write_header(std::ofstream& file){
     memcpy(buffer.data() + offset, &num_records, sizeof(num_records));
     offset += sizeof(num_records);
 
-    //free space start
-    uint32_t fst = tableheader.free_space_start;
-    memcpy(buffer.data() + offset, &fst, sizeof(fst));
-    offset += sizeof(fst);
-
-    //slot dir start
-    uint32_t sdt = tableheader.slot_dir_start;
-    memcpy(buffer.data() + offset, &sdt, sizeof(sdt));
-    offset += sizeof(sdt);
+    //num pages
+    uint32_t num_pages = tableheader.num_pages;
+    memcpy(buffer.data() + offset, &num_pages, sizeof(num_pages));
+    offset += sizeof(num_pages);
 
     //3. write column names
     for(const auto& col : schema){
@@ -89,7 +83,7 @@ void Table::write_header(std::ofstream& file){
 }
 
 
-
+//load the table from disk
 void Table::load_from_disk(const std::filesystem::path& path){
     std::ifstream file(path, std::ios::binary);
     std::vector<char> buffer(4096);
@@ -109,12 +103,8 @@ void Table::load_from_disk(const std::filesystem::path& path){
     memcpy(&tableheader.num_records, buffer.data() + offset, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
-    //free space start
-    memcpy(&tableheader.free_space_start, buffer.data() + offset, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-
-    //slot dir start
-    memcpy(&tableheader.slot_dir_start, buffer.data() + offset, sizeof(uint32_t));
+    //num pages
+    memcpy(&tableheader.num_pages, buffer.data() + offset, sizeof(uint32_t));
     offset += sizeof(uint32_t);
 
     schema.clear();
@@ -140,15 +130,23 @@ void Table::table_info_display(){
     printf("Path: %s\n", path.c_str());
     printf("Num columns: %d\n", tableheader.num_columns);
     printf("Num records: %d\n", tableheader.num_records);
+    printf("Num pages: %d\n", tableheader.num_pages);
     printf("Columns: ");
     for(const auto& x : schema){
         printf("%s ", x.name.c_str());
     }
-    printf("\nFSS: %d\n", tableheader.free_space_start);
-    printf("SDS: %d\n", tableheader.slot_dir_start);
-    printf("-----------------------\n");
+    printf("\n-----------------------\n");
     printf("\n");
 }
+
+void Table::update_header(uint32_t space){
+    tableheader.num_records++;
+    
+
+}
+
+
+
 
 std::string Table::return_table_name(){
     return name;

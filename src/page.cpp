@@ -2,10 +2,13 @@
 
 
 
-Page::Page(int pageID){
-    page_id = pageID;               //initially not assigned
-    free_space_pointer = 0;     //initially zero records (at the beginning)
-    slot_directory.clear();     //no slots yet
+Page Page::create_empty(uint16_t page_id){
+    Page p;
+    
+    p.header()->page_id = page_id;
+    p.header()->num_slots = 0;
+    p.header()->free_space_start = sizeof(PageHeader);
 
-    memset(data, 0, PAGE_SIZE); //initially all bytes in data are zero
+    return p;
 }
+

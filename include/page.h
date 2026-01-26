@@ -11,38 +11,44 @@
 using namespace std;
 
 
-#define PAGE_SIZE 4096 //(bytes) -> max page size (4 KB)
+#define PAGE_SIZE 4096           //(bytes) -> max page size (4 KB)
 
 
-struct Slot{
-    uint16_t offset; //start of the record
-    uint16_t length; //length of the record (if 0, then the record's been removed)
+//fixed 6 byte page header
+struct PageHeader {
+    uint16_t page_id;            //page id number
+    uint16_t num_slots;          //number of slot entries
+    uint16_t free_space_start;   //offset where free space begins
 };
 
-//A righteous man falls down 7 times, and gets back up
+//dynamic size slot directory
+//(grows from bottom of page up)
+struct Slot{
+    uint16_t offset;             //start of the record
+    uint16_t length;             //length of the record (if 0, record removed)
+};
 
 
 class Page { 
     private:
-        //1. Page header (metadata about the page)
-        //2. Records space (data rows themselves)
-        //3. Slot directory
-
-        int page_id;                        //page specific id
-        char data[PAGE_SIZE];               //raw page bytes
-        int free_space_pointer;             //next free space for record to be inserted
-        std::vector<Slot> slot_directory;   //offsets+size of records
-
+        std::vector<char> data; //entire page
 
     public:
-        Page(int pageID);
+        Page() : data(PAGE_SIZE, 0){} //inline constructor inits/zeros data array
+
+        PageHeader* header(){
+            return reinterpret_cast<PageHeader*>(data.data());
+        }
+
+        Slot* slot_directory(){
+            return reinterpret_cast<Slot*>(data.data() + PAGE_SIZE - header()->num_slots * sizeof(Slot));
+        }
 
 
-        //...
+        static Page create_empty(uint16_t page_id);
+        
+        char return_data();
+        
 };
-
-
-
-
 
 #endif

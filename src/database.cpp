@@ -117,8 +117,6 @@ Table Database::return_table(std::string table_name){
     return t;
 }
 
-
-
 std::vector<Record> Database::select_rows(std::string table_name){
     std::vector<Record> temp;
     return temp;
@@ -131,29 +129,36 @@ Record Database::find_record(int record_id, std::string table_name){
 
 bool Database::insert_record(Table table, std::vector<std::string>& values){
 
+    //----------------------------------------------------------------------------------------
+    //check the table exists                                                            (done)
+    //check the number of vals entered                                                  (done)
+    //serialize record into contiguous byte buffer                                      (....)
+    //Ask the storagemanager for the page the record should go                          (....)
+    //Insert the record into the page object                                            (....)
+       //-update the objects data buffer, free_space_start, slot_directory, num_slots)
+    //Write the page back to disk                                                       (....)
+    //Update the table metadata                                                         (....)
+    //---------------------------------------------------------------------------------------
+
+
     //check if table exists in directory
     std::string table_name = table.return_table_name();
     if(!locate_table(table_name)){
-        printf("insert_record: (error) Table, '%s' not found\n", table_name.c_str());
+        printf("Database::insert_record(): (error) Table, '%s' not found\n", table_name.c_str());
         return false;
     };
 
-    //check incorrect number of column values entered
-    if(sizeof(values) != table.return_tableheader().num_columns){
-        printf("insert_record: error, values entered do not match number of required columns\n");
+    //check for incorrect number of column values entered
+    if(values.size() != table.return_tableheader().num_columns){
+        printf("Database::insert_record(): (error) Values entered do not match number of required columns\n");
         return false;
     }
-
-    //init new StorageManager instance
-    StorageManager m(table.return_path()); 
-    fstream& fileptr = m.file(); //return filestream
-
-    std::vector<char> buffer; //record write buffer
-    size_t free_space_offset = table.return_tableheader().free_space_start;
     
+    //serialize the data into a byte buffer for writing
+    std::vector<char> buffer; 
     size_t offset = 0;
-    //iterate thru record values, memcpy to buffer (size offset, data)
-    for(auto const& x : values){ //serialize all record column values, add to buffer
+    
+    for(auto const& x : values){ 
         //memcpy the value's size
         uint32_t val_size = x.size();
         memcpy(buffer.data() + offset, &val_size, sizeof(val_size));
@@ -164,30 +169,15 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
         offset += val_size;
     }
 
-    //move "write" ptr to free_space_start
-    fileptr.seekp(free_space_offset, std::ios::beg);
-    
-    //write buffer of record data to file
-    fileptr.write(buffer.data(), buffer.size());
-
-    //update table's tableheader with new free_space_start and slot_dir_start
-
-
-
-
-
-    table.table_info_display(); //display table information
+    //ask storagemanager for page where the record should go
+    StorageManager m(table); 
     
     
-    
-    
+    Page page = m.read_page(); 
 
+        
     
-
-    
-    // return false; //should return false
-    return true; //(temporary for testing purposes)
-
+    return true;
 }
 
 bool Database::drop_record(std::string table_name, int record_id){

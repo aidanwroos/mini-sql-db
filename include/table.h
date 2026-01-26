@@ -17,11 +17,10 @@ enum DataType {
 };
 
 struct TableHeader {
-    uint32_t page_size;         //4096
-    uint32_t num_columns;       //whatever user makes it
-    uint32_t num_records;       //0
-    uint32_t free_space_start;  //initially headersize
-    uint32_t slot_dir_start;    //initially headersize
+    uint32_t page_size;         //4096 (also tblheader size)
+    uint32_t num_columns;       //decided by user
+    uint32_t num_records;       //0 initially
+    uint32_t num_pages;         //0 initially
 };
 
 struct Column {
@@ -33,8 +32,8 @@ class Table {
     private:
         std::string path;
         std::string name;
-        TableHeader tableheader;     //table metadata (start/end of data etc.)
-        std::vector<Column> schema;  //column names (and eventually types)
+        TableHeader tableheader;     
+        std::vector<Column> schema;
     public:
 
         Table();
@@ -51,7 +50,8 @@ class Table {
         size_t schema_size();
         TableHeader return_tableheader();
         void table_info_display();                               //display table header information
-};
+        void update_header(uint32_t space);                                    //update header after writing record
+    };
 
 
 
