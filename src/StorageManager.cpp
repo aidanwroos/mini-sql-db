@@ -36,24 +36,13 @@ fstream& StorageManager::file(){
     return data_file;
 }
 
+// read in the last page of the table
+void StorageManager::read_page(){
 
-Page StorageManager::read_page(){
-    std::streamsize size = data_file.tellg();
-    int num_pages = size / 4096;
+    //calculat the number of pages in the table
+    int num_pages = (data_file.tellg() / 4096) - 1;
 
-    Page page;
-
-    if(num_pages == 0){
-        //no pages exist in table yet, create new one and return it
-        page = Page::create_empty(0);
-
-    }else{
-        //pages exist, read last page in table and return it
-    }
-    
-
+    cout << "Number of pages in table: " << num_pages << endl;
 
 }
-
-
 

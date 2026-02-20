@@ -18,7 +18,7 @@ enum DataType {
 
 struct TableHeader {
     uint32_t page_size;         //4096 (also tblheader size)
-    uint32_t num_columns;       //decided by user
+    uint32_t num_columns;       //schema decided by user
     uint32_t num_records;       //0 initially
     uint32_t num_pages;         //0 initially
 };

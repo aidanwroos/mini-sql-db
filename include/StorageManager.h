@@ -24,11 +24,8 @@ class StorageManager {
 
     fstream& file(); //return data_file by REFERENCE (not VALUE headass)
 
+    void read_page();  //read in last page of table, or create new page if none exist
     
-    
-    Page read_page();  //read in last page of table, or create new page if none exist
-    
-
 };
 
 

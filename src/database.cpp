@@ -154,13 +154,24 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
         return false;
     }
     
-    //serialize the data into a byte buffer for writing
-    std::vector<char> buffer; 
+    // record byte buffer
+    std::vector<char> buffer;
+
+    // get size of all data, so I can resize the buffer with the correct space 
+    // (get seg fault without this)
+    size_t total_size = 0;
+    for(const std::string& x : values){
+        total_size += sizeof(uint32_t);
+        total_size += x.size();
+    }
+    buffer.resize(total_size);
+
+
+    // serializing thee record's data into the byte buffer for writing
     size_t offset = 0;
-    
-    for(auto const& x : values){ 
+    for(const string& x : values){ 
         //memcpy the value's size
-        uint32_t val_size = x.size();
+        uint32_t val_size = static_cast<uint32_t>(x.size());
         memcpy(buffer.data() + offset, &val_size, sizeof(val_size));
         offset += sizeof(val_size);
         
@@ -169,12 +180,16 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
         offset += val_size;
     }
 
-    //ask storagemanager for page where the record should go
-    StorageManager m(table); 
+    //ask storagemanager for page (table offset) where the record should go
+    StorageManager m(table);
     
-    
-    Page page = m.read_page(); 
+    //sequence of events?:
+    //read in the correct page (or create new one if none)
+    //  -how do we determine what page to insert into?
+    //insert record into page, then update the page's header and slot directory
+    //write the page back into the table
 
+    m.read_page();
         
     
     return true;

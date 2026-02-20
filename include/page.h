@@ -31,7 +31,7 @@ struct Slot{
 
 class Page { 
     private:
-        std::vector<char> data; //entire page
+        std::vector<char> data;  //entire page
 
     public:
         Page() : data(PAGE_SIZE, 0){} //inline constructor inits/zeros data array
