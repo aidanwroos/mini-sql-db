@@ -50,7 +50,7 @@ class Table {
         size_t schema_size();
         TableHeader return_tableheader();
         void table_info_display();                               //display table header information
-        void update_header(uint32_t space);                                    //update header after writing record
+        void update_header(uint32_t space);                      //update header after writing record
     };
 
 

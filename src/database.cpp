@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <iomanip>
 
 namespace fs = std::filesystem;
 
@@ -132,7 +133,7 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
     //----------------------------------------------------------------------------------------
     //check the table exists                                                            (done)
     //check the number of vals entered                                                  (done)
-    //serialize record into contiguous byte buffer                                      (....)
+    //serialize record into contiguous byte buffer                                      (done)
     //Ask the storagemanager for the page the record should go                          (....)
     //Insert the record into the page object                                            (....)
        //-update the objects data buffer, free_space_start, slot_directory, num_slots)
@@ -157,8 +158,7 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
     // record byte buffer
     std::vector<char> buffer;
 
-    // get size of all data, so I can resize the buffer with the correct space 
-    // (get seg fault without this)
+    // get size of all data, so I can resize the buffer with the correct size and capacity
     size_t total_size = 0;
     for(const std::string& x : values){
         total_size += sizeof(uint32_t);
@@ -167,9 +167,10 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
     buffer.resize(total_size);
 
 
-    // serializing thee record's data into the byte buffer for writing
+    // serializing the record's data into the byte buffer for writing
     size_t offset = 0;
     for(const string& x : values){ 
+
         //memcpy the value's size
         uint32_t val_size = static_cast<uint32_t>(x.size());
         memcpy(buffer.data() + offset, &val_size, sizeof(val_size));
@@ -224,7 +225,7 @@ void Database::display_record(Record record){
 }
 
 
-
+// loading each table's metadata into memory during db initialization
 void Database::load_tables_from_disk(){
     //Iterate over every file inside db_path
     for(const auto& entry : fs::directory_iterator(db_path)){
@@ -238,6 +239,7 @@ void Database::load_tables_from_disk(){
         //check if this table is already loaded in memory (our map)
         if(tables.find(name) == tables.end()){
             
+            //loading table metadata at initialization (not actual pages and records yet)
             //it's not loaded in memory yet
             //create new table object
             //load object with the table information
