@@ -48,12 +48,22 @@ void StorageManager::create_page(){
     // 2. Instantiate a Page object passing in the page_id
     Page page(page_id);
 
-
     // 3. Serialize the whole page data (header, records(empty now), slot dir (empty now)) into byte stream
-    
-    // 4. Write the serialized page data to the table file
- 
+    std::vector<char> page_data(PAGE_SIZE);
 
+    uint16_t pg_id = page.return_pg_header().page_id;
+    uint16_t free_space_offset = page.return_pg_header().free_space_start;
+    uint16_t slot_dir_offset = page.return_pg_header().slot_dir_offset;
+    
+    memcpy(page_data.data() + 0, &pg_id, sizeof(pg_id));
+    memcpy(page_data.data() + 2, &free_space_offset, sizeof(free_space_offset));
+    memcpy(page_data.data() + 4, &slot_dir_offset, sizeof(slot_dir_offset));
+
+
+    // 4. Load the page object into the StorageManager's page buffer for writing/reading later
+    //    -probably have a separate write_page() function or something
+
+    // 5. (maybe not yet?) Write the serialized page data to the table file
 
 }
 

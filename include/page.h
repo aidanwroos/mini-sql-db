@@ -12,12 +12,13 @@ using namespace std;
 
 
 #define PAGE_SIZE 4096           //(bytes) -> max page size (4 KB)
+#define PAGE_HEADER_SIZE 6       //(bytes) -> fixed page header size
 
 
 //fixed 6 byte page header
 struct PageHeader {
     uint16_t page_id;            //page id number
-    uint16_t num_slots;          //number of slot entries
+    uint16_t slot_dir_offset;    //slot directory offset from end of page
     uint16_t free_space_start;   //offset where free space begins
 };
 
@@ -33,15 +34,14 @@ class Page {
     private:
         std::vector<char> data;  //entire page
         PageHeader pageheader;   
-        Slot slotdirectory;
+        // Slot slotdirectory; not right now
 
     public:
-        Page();                  // default page constructor
-        Page(uint16_t pg_id);    // page constructor
+        Page();                  //default page constructor
+        Page(uint16_t pg_id);    //page constructor
 
-        
-        
-        char return_data();
+        PageHeader return_pg_header(); //getter for page header info
+        void serialize_page();
         
 };
 
