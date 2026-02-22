@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <cassert>
 
+#include "page.h"
+
 enum DataType {
     //nothing here yet...
 };
@@ -51,6 +53,9 @@ class Table {
         TableHeader return_tableheader();
         void table_info_display();                               //display table header information
         void update_header(uint32_t space);                      //update header after writing record
+
+        uint32_t return_num_pages();                             //returns num pages (last page id basically)
+        void create_new_page();                                  //add new page to table (containing header, records, slot dir)
     };
 
 

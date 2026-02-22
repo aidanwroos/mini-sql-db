@@ -123,6 +123,17 @@ void Table::load_from_disk(const std::filesystem::path& path){
 
 }
 
+uint32_t Table::return_num_pages(){
+    return tableheader.num_pages;
+}
+
+
+
+
+
+
+
+
 void Table::table_info_display(){
     printf("\nTable Information\n");
     printf("-----------------------\n");

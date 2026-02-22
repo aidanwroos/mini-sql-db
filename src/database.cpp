@@ -138,7 +138,7 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
     //Insert the record into the page object                                            (....)
        //-update the objects data buffer, free_space_start, slot_directory, num_slots)
     //Write the page back to disk                                                       (....)
-    //Update the table metadata                                                         (....)
+    //Update the table metadata (table header struct, slot dir)                                                      (....)
     //---------------------------------------------------------------------------------------
 
 
@@ -189,6 +189,11 @@ bool Database::insert_record(Table table, std::vector<std::string>& values){
     //  -how do we determine what page to insert into?
     //insert record into page, then update the page's header and slot directory
     //write the page back into the table
+
+    table.table_info_display();
+
+
+
 
     m.read_page();
         

@@ -32,20 +32,14 @@ struct Slot{
 class Page { 
     private:
         std::vector<char> data;  //entire page
+        PageHeader pageheader;   
+        Slot slotdirectory;
 
     public:
-        Page() : data(PAGE_SIZE, 0){} //inline constructor inits/zeros data array
+        Page();                  // default page constructor
+        Page(uint16_t pg_id);    // page constructor
 
-        PageHeader* header(){
-            return reinterpret_cast<PageHeader*>(data.data());
-        }
-
-        Slot* slot_directory(){
-            return reinterpret_cast<Slot*>(data.data() + PAGE_SIZE - header()->num_slots * sizeof(Slot));
-        }
-
-
-        static Page create_empty(uint16_t page_id);
+        
         
         char return_data();
         
